@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#faf8f6">
+  <title>ЭСЛАВИЯ — каталог</title>
+  <meta name="description" content="Женский трикотаж оптом. Каталог моделей, размеры 42–72, опт от 5 000 ₽.">
+  <link rel="icon" href="brand/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+  <div id="list-view" class="view">
+    <header class="hero">
+      <span class="logo" role="img" aria-label="ЭСЛАВИЯ"></span>
+      <p class="tagline">женский трикотаж · оптом</p>
+      <p class="facts"><span>Опт от 5 000 ₽</span><i></i><span>Размеры 42–72</span></p>
+      <p class="facts facts-2">Самовывоз Иваново / Кохма</p>
+    </header>
+
+    <div class="controls" id="controls">
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Поиск по названию или артикулу" aria-label="Поиск">
+        <button id="q-clear" class="clear" type="button" aria-label="Очистить" hidden>×</button>
+      </label>
+      <div class="chips" id="cats" role="tablist" aria-label="Категории"></div>
+      <div class="sizes-row">
+        <span class="sizes-label">Размер</span>
+        <div class="chips chips-size" id="sizes" aria-label="Размер"></div>
+      </div>
+    </div>
+
+    <div class="result-line"><span id="count"></span><button id="reset" type="button" hidden>Сбросить</button></div>
+    <main id="grid" class="grid" aria-live="polite"></main>
+    <p id="empty" class="empty" hidden>Ничего не найдено. Попробуйте изменить фильтры.</p>
+
+    <footer class="foot">
+      <p>Заказ от 5 000 ₽ · Самовывоз Иваново / Кохма</p>
+      <a id="channel-link" href="https://t.me/eslavia_opt">Канал @eslavia_opt</a>
+    </footer>
+  </div>
+
+  <section id="detail-view" class="view detail" hidden aria-modal="true" role="dialog">
+    <div class="detail-top">
+      <button id="back" class="back" type="button" aria-label="Назад">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Каталог</span>
+      </button>
+    </div>
+    <div class="gallery">
+      <div class="slides" id="slides"></div>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="info">
+      <p class="d-cat" id="d-cat"></p>
+      <h1 class="d-title" id="d-title"></h1>
+      <p class="d-article" id="d-article"></p>
+      <div class="d-price"><span>Опт</span><strong id="d-price"></strong></div>
+      <div class="d-block">
+        <p class="d-label">Размеры</p>
+        <div class="d-sizes" id="d-sizes"></div>
+      </div>
+      <p class="d-meta" id="d-meta"></p>
+      <p class="d-note">Минимальный заказ от 5 000 ₽. Самовывоз Иваново / Кохма.</p>
+    </div>
+    <div class="actions">
+      <a id="d-post" class="btn btn-ghost" href="#" rel="noopener">Открыть пост</a>
+      <a id="d-order" class="btn btn-primary" href="#" rel="noopener">Заказать</a>
+    </div>
+  </section>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>
