@@ -275,25 +275,77 @@ html[data-theme="dark"] .card .a { color: var(--accent); }
 .back svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 html.in-tg .detail-top { display: none; } /* Telegram BackButton is used instead */
 
-.gallery { position: relative; background: var(--photo-bg); }
+/* Photo area: always full width, height = 3:4 of the width but never taller than the viewport minus the
+   action bar, so the whole figure is visible. object-fit: contain never crops; the letterbox colour is
+   taken from the photo's own edge (app.js edgeBg), with a neutral white fallback — no tinted stripe. */
+.gallery { position: relative; background: #fff; }
 .slides {
   display: flex;
+  width: 100%;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   aspect-ratio: 3 / 4;
-  max-height: 72vh;
+  max-height: calc(100vh - 86px - var(--safe-bottom));
+  max-height: calc(100dvh - 86px - var(--safe-bottom));
+  min-height: 280px;
 }
 .slides::-webkit-scrollbar { display: none; }
 .slides img {
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #fff;
   scroll-snap-align: center;
   display: block;
 }
-@media (min-width: 640px) { .slides img { object-fit: contain; } }
+
+/* ‹ › arrows — mouse/trackpad only (Telegram Desktop, browsers), at any width; touch devices swipe. */
+.nav { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .nav {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 112px;
+    margin-top: -56px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #3d2f2c;
+    cursor: pointer;
+    transition: opacity .2s var(--ease);
+  }
+  .nav-prev { left: var(--nav-inset, 0px); }
+  .nav-next { right: var(--nav-inset, 0px); }
+  .nav svg {
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .62);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 1px 8px rgba(61, 47, 44, .14);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .78;
+    transition: opacity .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+  }
+  .nav:hover svg, .nav:focus-visible svg { opacity: 1; background: rgba(255, 255, 255, .92); transform: scale(1.06); }
+  .nav:active svg { transform: scale(.96); }
+  .nav:focus { outline: none; }
+  .nav:focus-visible svg { box-shadow: 0 0 0 2px #60413d; }
+  .nav:disabled { opacity: 0; pointer-events: none; }
+}
 .dots { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; gap: 6px; }
 .dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%; background: rgba(96, 65, 61, .22); cursor: pointer; transition: width .25s var(--ease), background .25s var(--ease); }
 .dots button.on { width: 20px; border-radius: 4px; background: #60413d; }

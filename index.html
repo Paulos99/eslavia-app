@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="./styles.css?v=2">
+  <link rel="stylesheet" href="./styles.css?v=3">
 </head>
 <body>
   <div id="list-view" class="view">
@@ -55,6 +55,8 @@
     </div>
     <div class="gallery">
       <div class="slides" id="slides"></div>
+      <button id="nav-prev" class="nav nav-prev" type="button" aria-label="Предыдущее фото" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
+      <button id="nav-next" class="nav nav-next" type="button" aria-label="Следующее фото" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
       <div class="dots" id="dots"></div>
     </div>
     <div class="info">
@@ -75,6 +77,6 @@
     </div>
   </section>
 
-  <script src="./app.js?v=2"></script>
+  <script src="./app.js?v=3"></script>
 </body>
 </html>

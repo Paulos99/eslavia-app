@@ -116,6 +116,65 @@
   // ---------- detail ----------
   var current = null, lastScroll = 0;
 
+  // Letterbox (object-fit: contain) takes the colour of the photo's own left/right edge,
+  // so the bars beside the figure blend into the studio background instead of showing a stripe.
+  var edgeCanvas = null;
+  function edgeBg(img) {
+    try {
+      var W = 32, H = 16;
+      edgeCanvas = edgeCanvas || document.createElement("canvas");
+      edgeCanvas.width = W; edgeCanvas.height = H;
+      var cx = edgeCanvas.getContext("2d", { willReadFrequently: true });
+      cx.drawImage(img, 0, 0, W, H);
+      var d = cx.getImageData(0, 0, W, H).data;
+      // vertical gradient that follows one edge column; only light, near-neutral studio backgrounds are
+      // copied, anything else (e.g. a lifestyle photo) falls back to plain white
+      var side = function (x) {
+        var stops = [], ok = true;
+        for (var y = 0; y < H; y++) {
+          var o = (y * W + x) * 4, r = d[o], g = d[o + 1], b = d[o + 2];
+          if (Math.min(r, g, b) < 190 || Math.max(r, g, b) - Math.min(r, g, b) > 40) ok = false;
+          stops.push("rgb(" + r + "," + g + "," + b + ") " + ((y + 0.5) / H * 100).toFixed(1) + "%");
+        }
+        return (ok ? "linear-gradient(" + stops.join(",") + ")" : "linear-gradient(#fff,#fff)");
+      };
+      img.style.background = side(0) + " left / 50% 100% no-repeat, " + side(W - 1) + " right / 50% 100% no-repeat, #fff";
+    } catch (e) { /* keep the neutral CSS background */ }
+  }
+
+  // ---------- photo navigation (same as swiping: flips the current model's photos, no loop) ----------
+  var navTarget = null, navTimer = 0;
+  function slideCount() { return $("slides").children.length; }
+  function slideIndex() {
+    var s = $("slides");
+    return Math.round(s.scrollLeft / Math.max(1, s.clientWidth));
+  }
+  function updateNav() {
+    var i = navTarget != null ? navTarget : slideIndex(), n = slideCount();
+    $("nav-prev").disabled = i <= 0;
+    $("nav-next").disabled = i >= n - 1;
+  }
+  // put the arrows over the edges of the visible photo (contain leaves side bars on wide screens)
+  function placeNav() {
+    var s = $("slides");
+    if (!s.clientWidth) return;
+    var pw = Math.min(s.clientWidth, s.clientHeight * 0.75);
+    s.parentNode.style.setProperty("--nav-inset", Math.max(0, Math.round((s.clientWidth - pw) / 2)) + "px");
+  }
+  function goPhoto(delta) {
+    var s = $("slides"), n = slideCount();
+    if (n < 2) return;
+    var base = navTarget != null ? navTarget : slideIndex();
+    var t = Math.max(0, Math.min(n - 1, base + delta));
+    if (t === base) return;
+    navTarget = t;
+    clearTimeout(navTimer);
+    navTimer = setTimeout(function () { navTarget = null; updateNav(); }, 800);
+    var smooth = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+    s.scrollTo({ left: t * s.clientWidth, behavior: smooth ? "smooth" : "auto" });
+    updateNav();
+  }
+
   function showDetail(id) {
     var it = byId[id];
     if (!it) return false;
@@ -124,10 +183,16 @@
     $("slides").innerHTML = it.images.map(function (src, i) {
       return '<img src="' + esc(src) + '" width="720" height="960" alt="' + esc(it.name) + " — фото " + (i + 1) + '"' + (i ? ' loading="lazy"' : "") + ">";
     }).join("");
+    [].forEach.call($("slides").querySelectorAll("img"), function (img) {
+      if (img.complete && img.naturalWidth) edgeBg(img); else img.addEventListener("load", function () { edgeBg(img); }, { once: true });
+    });
     $("dots").innerHTML = it.images.map(function (_, i) {
       return '<button type="button" aria-label="Фото ' + (i + 1) + '"' + (i ? "" : ' class="on"') + ' data-i="' + i + '"></button>';
     }).join("");
     $("slides").scrollLeft = 0;
+    navTarget = null;
+    $("nav-prev").hidden = $("nav-next").hidden = it.images.length < 2;
+    updateNav();
     $("d-cat").textContent = it.category;
     $("d-title").textContent = it.title;
     $("d-article").textContent = it.article;
@@ -142,6 +207,7 @@
     document.body.classList.add("detail-open");
     if (inTelegram && tg.BackButton) tg.BackButton.show();
     document.title = it.name + " — ЭСЛАВИЯ";
+    placeNav();
     return true;
   }
 
@@ -201,7 +267,16 @@
     window.addEventListener("hashchange", route);
     $("back").addEventListener("click", goBack);
     if (inTelegram && tg.BackButton) tg.BackButton.onClick(goBack);
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && current) goBack(); });
+    document.addEventListener("keydown", function (e) {
+      if (!current) return;
+      if (e.key === "Escape") { goBack(); return; }
+      if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        var tag = (e.target && e.target.tagName) || "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || (e.target && e.target.isContentEditable)) return;
+        e.preventDefault();
+        goPhoto(e.key === "ArrowLeft" ? -1 : 1);
+      }
+    });
 
     $("d-order").addEventListener("click", function (e) {
       if (!current) return; e.preventDefault(); openTg(current.order);
@@ -215,7 +290,19 @@
     slides.addEventListener("scroll", function () {
       var i = Math.round(slides.scrollLeft / Math.max(1, slides.clientWidth));
       [].forEach.call($("dots").children, function (d, k) { d.classList.toggle("on", k === i); });
+      if (navTarget != null && Math.abs(slides.scrollLeft - navTarget * slides.clientWidth) < 2) navTarget = null;
+      updateNav();
     }, { passive: true });
+    $("nav-prev").addEventListener("click", function () { goPhoto(-1); });
+    window.addEventListener("resize", function () {
+      if (!current) return;
+      placeNav();
+      var i = navTarget != null ? navTarget : slideIndex();
+      navTarget = null;
+      slides.scrollLeft = i * slides.clientWidth;   // keep the same photo after a resize
+      updateNav();
+    });
+    $("nav-next").addEventListener("click", function () { goPhoto(1); });
     $("dots").addEventListener("click", function (e) {
       var b = e.target.closest("[data-i]"); if (!b) return;
       slides.scrollTo({ left: +b.getAttribute("data-i") * slides.clientWidth, behavior: "smooth" });
