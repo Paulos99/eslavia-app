@@ -10,6 +10,10 @@ Served by GitHub Pages: https://paulos99.github.io/eslavia-app/
   (the same 3 photos as the channel album)
 - `brand/cover-640x360.png` — cover for @BotFather `/newapp`
 
-Rebuild after catalog changes: `python3 scripts/build_data.py`, then commit and push.
+Also published inside the main site at http://eslavia.ru/app/ (copy in `eslavia-site/public/app/`).
+All asset paths are relative (`./...`), so the same files work at any subpath.
+
+Rebuild after catalog changes: `python3 scripts/build_data.py`, commit and push; then
+`scripts/sync_to_site.sh` and commit/push `public/app` in the site repo.
 
 Deep links: `?startapp=<model id>` (e.g. `m-102`) opens a model, `?startapp=cat-<index>` opens a category.
