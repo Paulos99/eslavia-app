@@ -235,7 +235,7 @@
     return p;
   }
 
-  fetch("data/catalog.json?v=" + (window.CATALOG_VERSION || "1"), { cache: "no-cache" })
+  fetch("./data/catalog.json?v=" + (window.CATALOG_VERSION || "1"), { cache: "no-cache" })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (d) {
       data = d;

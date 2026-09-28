@@ -129,7 +129,7 @@ def main() -> int:
         gallery = []
         for i, rel in enumerate(imgs, 1):
             stats[put_image(rel, 720, base / f"{i:02d}-720.webp")] += 1
-            gallery.append(f"img/{p['id']}/{i:02d}-720.webp")
+            gallery.append(f"./img/{p['id']}/{i:02d}-720.webp")
         article = p.get("article") or ""
         title = pc.cap_first(re.sub(r"\s{2,}", " ", name.replace(article, "")).strip()) if article else name
         cat = p.get("category") or ""
@@ -145,7 +145,7 @@ def main() -> int:
             "big": max(nums or [0]) >= pc.BIG_SIZE_MIN,
             "price": int(round(float(p["priceWholesale"]))),
             "material": p.get("material") or None,
-            "thumb": f"img/{p['id']}/01-480.webp",
+            "thumb": f"./img/{p['id']}/01-480.webp",
             "thumb2x": gallery[0],
             "images": gallery,
             "post": post,

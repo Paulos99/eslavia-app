@@ -71,8 +71,8 @@ body.detail-open { overflow: hidden; }
   height: 54px;
   margin: 0 auto;
   background-color: var(--accent);
-  -webkit-mask: url(brand/logo.svg) center / contain no-repeat;
-  mask: url(brand/logo.svg) center / contain no-repeat;
+  -webkit-mask: url(./brand/logo.svg) center / contain no-repeat;
+  mask: url(./brand/logo.svg) center / contain no-repeat;
 }
 html[data-theme="dark"] .logo { background-color: var(--text); }
 .tagline {
